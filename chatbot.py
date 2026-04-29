@@ -83,3 +83,12 @@ if prompt := st.chat_input("سوال فنی خود را بپرسید..."):
 
         except Exception as e:
             st.error(f"خطا در مدل: {str(e)}")
+
+# تست سریع اتصال در سایدبار
+if st.sidebar.button("تست اتصال به دیتابیس"):
+    try:
+        with engine.connect() as conn:
+            result = conn.execute(text("SELECT 1"))
+            st.sidebar.success("اتصال با موفقیت برقرار شد! ✅")
+    except Exception as e:
+        st.sidebar.error(f"خطا در اتصال: {e}")
