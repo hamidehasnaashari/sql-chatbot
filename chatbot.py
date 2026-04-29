@@ -83,8 +83,3 @@ if prompt := st.chat_input("سوال فنی خود را بپرسید..."):
 
         except Exception as e:
             st.error(f"خطا در مدل: {str(e)}")
-
-
-                st.table(df)
-            except Exception as e:
-                st.error("خطا در بارگذاری جدول.")
