@@ -1,110 +1,91 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[ ]:
-
-
 import streamlit as st
 from groq import Groq
-import sqlite3
 from sqlalchemy import create_engine, text
 from datetime import datetime
+import pandas as pd
 
-# ۱. تنظیمات اولیه دیتابیس
-def init_db():
-    conn = sqlite3.connect('audit_study_data.db')
-    c = conn.cursor()
-    c.execute('''CREATE TABLE IF NOT EXISTS chat_logs 
-                 (user_id TEXT, 
-                  prompt_number INTEGER, 
-                  user_prompt TEXT, 
-                  ai_response TEXT, 
-                  model_name TEXT,
-                  timestamp TEXT)''')
-    conn.commit()
-    return conn
+# تنظیمات اولیه صفحه
+st.set_page_config(page_title="Audit Research Chatbot", layout="centered")
+st.title("🤖 دستیار پژوهش حسابرسی")
+st.write("این گفتگو برای اهداف تحقیقاتی در دیتابیس امن ذخیره می‌شود.")
 
-# ۲. اتصال امن به Groq
+# ۱. اتصال به دیتابیس ابری (با استفاده از رازی که در Secrets گذاشتید)
 try:
-    client = Groq(api_key=st.secrets["GROQ_API_KEY"])
+    engine = create_engine(st.secrets["DB_URL"])
 except Exception as e:
-    st.error(f"خطای فنی: {e}") # این خط به ما می‌گوید مشکل دقیقاً چیست
-    st.stop()
+    st.error("خطا در اتصال به دیتابیس. لطفاً Secrets را چک کنید.")
 
-st.set_page_config(page_title="SQL Consultant AI", layout="centered")
+# ۲. تابع ذخیره‌سازی داده‌ها (Invisible Data Collection)
+def save_data(u_id, p_num, u_prompt, ai_res):
+    query = text("""
+        INSERT INTO audit_logs (user_id, prompt_number, user_prompt, ai_response, timestamp)
+        VALUES (:u_id, :p_num, :u_prompt, :ai_res, :ts)
+    """)
+    try:
+        with engine.begin() as conn:
+            conn.execute(query, {
+                "u_id": u_id,
+                "p_num": p_num,
+                "u_prompt": u_prompt,
+                "ai_res": ai_res,
+                "ts": datetime.now()
+            })
+    except Exception as e:
+        print(f"Database Error: {e}")
 
-st.title("دستیار هوشمند و مشاور کدهای SQL")
-st.info("این پنل جهت مشاوره در طراحی دیتابیس و بهینه‌سازی کوئری‌ها طراحی شده است.")
+# ۳. تنظیمات مدل هوش مصنوعی (Groq)
+client = Groq(api_key=st.secrets["GROQ_API_KEY"])
 
-# ۳. مدیریت شناسایی کاربر
-if 'user_id' not in st.session_state:
-    st.session_state.user_id = ""
-if 'p_count' not in st.session_state:
-    st.session_state.p_count = 0
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-user_input_id = st.text_input("لطفاً کد شناسایی خود را وارد کنید:", value=st.session_state.user_id)
+# نمایش تاریخچه چت در محیط برنامه
+for message in st.session_state.messages:
+    with st.chat_message(message["role"]):
+        st.markdown(message["content"])
 
-if user_input_id:
-    st.session_state.user_id = user_input_id
+# ۴. منطق اصلی چت و ذخیره‌سازی
+if prompt := st.chat_input("سوال خود را اینجا بپرسید..."):
+    # نمایش پیام کاربر
+    st.session_state.messages.append({"role": "user", "content": prompt})
+    with st.chat_message("user"):
+        st.markdown(prompt)
 
-    # نمایش تاریخچه چت
-    for message in st.session_state.messages:
-        with st.chat_message(message["role"]):
-            st.markdown(message["content"])
+    # گرفتن پاسخ از Groq
+    with st.chat_message("assistant"):
+        response_placeholder = st.empty()
+        full_response = ""
+        
+        completion = client.chat.completions.create(
+            model="mixtral-8x7b-32768",
+            messages=[{"role": m["role"], "content": m["content"]} for m in st.session_state.messages],
+            stream=True,
+        )
+        
+        for chunk in completion:
+            full_response += (chunk.choices[0].delta.content or "")
+            response_placeholder.markdown(full_response + "▌")
+        
+        response_placeholder.markdown(full_response)
 
-    # ۴. فرآیند دریافت پرامپت و پاسخ
-    if prompt := st.chat_input("سوال SQL خود را اینجا بپرسید (مثلاً: چطور دو جدول را Join کنم؟)"):
-        st.session_state.p_count += 1
-        st.session_state.messages.append({"role": "user", "content": prompt})
-        with st.chat_message("user"):
-            st.markdown(prompt)
+    # ۵. عملیات ذخیره‌سازی (بدون اینکه کاربر متوجه شود)
+    # به عنوان یک Audit Manager، ما هر تعامل را با شماره ردیف ثبت می‌کنیم
+    prompt_index = len(st.session_state.messages) // 2 + 1
+    save_data(
+        u_id="Anonymous_Researcher", # می‌توانید این را بر اساس کد شرکت‌کننده تغییر دهید
+        p_num=prompt_index,
+        u_prompt=prompt,
+        ai_res=full_response
+    )
+    
+    st.session_state.messages.append({"role": "assistant", "content": full_response})
 
-        # فراخوانی مدل به عنوان مشاور SQL
-        try:
-            completion = client.chat.completions.create(
-                model="llama-3.1-8b-instant", 
-                messages=[
-                    {
-                        "role": "system", 
-                        "content": "You are an expert SQL Consultant. Help the user write, optimize, and debug SQL queries. Focus on best practices, T-SQL (SQL Server) syntax, data modeling, and performance. Always wrap SQL code in backticks for better formatting."
-                    },
-                    {"role": "user", "content": prompt}
-                ],
-                temperature=0.5, # کاهش دما برای پاسخ‌های دقیق‌تر فنی
-            )
-            response_text = completion.choices[0].message.content
-        except Exception as e:
-            response_text = f"خطای سیستمی: {str(e)}"
-
-        # نمایش پاسخ
-        with st.chat_message("assistant"):
-            st.markdown(response_text)
-        st.session_state.messages.append({"role": "assistant", "content": response_text})
-
-        # ۵. ذخیره در دیتابیس
-        conn = init_db()
-        c = conn.cursor()
-        c.execute("INSERT INTO chat_logs VALUES (?, ?, ?, ?, ?, ?)", 
-                  (st.session_state.user_id, 
-                   st.session_state.p_count, 
-                   prompt, 
-                   response_text, 
-                   "Llama-3.1-8b-SQL", 
-                   datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
-        conn.commit()
-        conn.close()
-
-else:
-    st.warning("برای شروع مشاوره، لطفاً کد شناسایی را وارد کنید.")
-
-# دکمه اتمام جلسه در انتهای صفحه
-st.divider()
-if st.button("اتمام جلسه و خروج"):
-    for key in list(st.session_state.keys()):
-        del st.session_state[key]
-    st.success("اطلاعات جلسه پاکسازی شد. از همراهی شما متشکریم.")
-    st.balloons()
-    st.rerun()
-
+# ۶. بخش مدیریت (فقط برای شما با رمز عبور) - اختیاری
+with st.sidebar:
+    st.header("پنل مدیریت")
+    admin_pass = st.text_input("رمز عبور مدیر", type="password")
+    if admin_pass == st.secrets.get("ADMIN_PASSWORD", "1234"): # رمزی در Secrets تعریف کنید
+        st.success("دسترسی تایید شد")
+        if st.button("مشاهده وضعیت لحظه‌ای دیتابیس"):
+            df = pd.read_sql("SELECT * FROM audit_logs ORDER BY timestamp DESC LIMIT 5", engine)
+            st.table(df)
