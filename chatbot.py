@@ -27,7 +27,7 @@ def init_db():
 try:
     client = Groq(api_key=st.secrets["GROQ_API_KEY"])
 except Exception as e:
-    st.error("خطا: کلید API در بخش Secrets تنظیم نشده است.")
+    st.error(f"خطای فنی: {e}") # این خط به ما می‌گوید مشکل دقیقاً چیست
     st.stop()
 
 st.set_page_config(page_title="SQL Consultant AI", layout="centered")
