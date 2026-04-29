@@ -136,6 +136,13 @@ if prompt := st.chat_input("َAsk your question..."):
         except Exception as e:
             st.error(f"خطا در مدل: {str(e)}")
 
+# --- Simple End Session Button ---
+if st.button("🔴 End Session & Reset"):
+    # Clear session messages
+    st.session_state.messages = [{"role": "system", "content": "You are a professional SQL Server Expert."}]
+    # Force refresh to return to home state
+    st.rerun()
+
 
 # تست سریع اتصال در سایدبار
 #if st.sidebar.button("تست نهایی اتصال"):
