@@ -80,12 +80,3 @@ if prompt := st.chat_input("سوال خود را اینجا بپرسید..."):
     
     st.session_state.messages.append({"role": "assistant", "content": full_response})
 
-# ۶. بخش مدیریت (فقط برای شما با رمز عبور) - اختیاری
-with st.sidebar:
-    st.header("پنل مدیریت")
-    admin_pass = st.text_input("رمز عبور مدیر", type="password")
-    if admin_pass == st.secrets.get("ADMIN_PASSWORD", "1234"): # رمزی در Secrets تعریف کنید
-        st.success("دسترسی تایید شد")
-        if st.button("مشاهده وضعیت لحظه‌ای دیتابیس"):
-            df = pd.read_sql("SELECT * FROM audit_logs ORDER BY timestamp DESC LIMIT 5", engine)
-            st.table(df)
