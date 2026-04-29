@@ -3,45 +3,60 @@ from groq import Groq
 from sqlalchemy import create_engine, text
 from datetime import datetime
 import pandas as pd
-
 # تنظیمات اصلی صفحه
-# تنظیمات اصلی صفحه با تم تیره/روشن بهبود یافته
-st.set_page_config(page_title="SQL Server Expert Consultant", layout="wide", initial_sidebar_state="expanded")
+st.set_page_config(page_title="SQL Server Expert", layout="wide")
 
-# اضافه کردن CSS سفارشی برای ظاهر مرتب‌تر
+# CSS برای ایجاد حاشیه، فونت فارسی و استایل کادرها
 st.markdown("""
     <style>
     .main {
-        background-color: #f5f7f9;
+        padding: 2rem;
+    }
+    .main-container {
+        border: 2px solid #e6e9ef;
+        border-radius: 15px;
+        padding: 20px;
+        background-color: white;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    .bot-description {
+        background-color: #f0f2f6;
+        border-right: 5px solid #007bff;
+        padding: 15px;
+        border-radius: 5px;
+        margin-bottom: 20px;
+        direction: rtl;
     }
     .stChatMessage {
-        border-radius: 15px;
-        padding: 15px;
-        margin-bottom: 10px;
-    }
-    .stButton>button {
-        width: 100%;
-        border-radius: 20px;
-        height: 3em;
-        background-color: #007bff;
-        color: white;
-    }
-    .sidebar .sidebar-content {
-        background-image: linear-gradient(#2e7bcf,#2e7bcf);
-        color: white;
+        border: 1px solid #ddd;
+        border-radius: 10px;
     }
     </style>
     """, unsafe_allow_html=True)
 
-# هدر اصلی
-col1, col2 = st.columns([1, 5])
-with col1:
-    st.title("🛡️")
-with col2:
-    st.title("مشاور ارشد SQL Server")
-    st.caption("سیستم هوشمند تحلیل و بهینه‌سازی پایگاه داده")
+# هدر و معرفی بات
+with st.container():
+    col1, col2 = st.columns([1, 4])
+    with col1:
+        st.image("https://cdn-icons-png.flaticon.com/512/2721/2721614.png", width=100) # آیکون دیتابیس
+    with col2:
+        st.title("دستیار هوشمند مدیریت دیتابیس")
+        st.markdown("### متخصص بهینه‌سازی SQL Server و تحلیل داده")
 
-st.divider()
+# بخش توضیحات بات (خلاصه توانمندی‌ها)
+st.markdown("""
+    <div class="bot-description">
+        <b>درباره این دستیار:</b><br>
+        این هوش مصنوعی بر پایه مدل Llama 3.3 طراحی شده و در زمینه‌های زیر به شما کمک می‌کند:<br>
+        <ul>
+            <li>عیب‌یابی کوئری‌های پیچیده T-SQL</li>
+            <li>طراحی و نرمال‌سازی مدل‌های داده (Data Modeling)</li>
+            <li>بهینه‌سازی ایندکس‌ها و افزایش سرعت دیتابیس</li>
+            <li>مشاوره در زمینه Forensic Accounting و شناسایی الگوهای مشکوک در تراکنش‌ها</li>
+        </ul>
+    </div>
+    """, unsafe_allow_html=True)
+
 
 
 # ۱. اتصال به دیتابیس Supabase
