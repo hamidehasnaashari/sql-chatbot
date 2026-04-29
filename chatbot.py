@@ -2,18 +2,41 @@ import streamlit as st
 from groq import Groq
 from sqlalchemy import create_engine, text
 from datetime import datetime
-import pandas as pd
 
-# تنظیمات اصلی صفحه
-st.set_page_config(page_title="SQL Server Expert Consultant", layout="centered")
-st.title("🛡️ مشاور تخصصی SQL Server")
-st.subheader("پایگاه دانش طراحی، بهینه‌سازی و امنیت دیتابیس")
+# ۱. ایجاد اتصال (مطمئن شوید DB_URL در Secrets درست است)
+engine = create_engine(st.secrets["DB_URL"])
 
-# ۱. اتصال امن به دیتابیس Supabase
-try:
-    engine = create_engine(st.secrets["DB_URL"])
-except Exception as e:
-    st.error("خطا در پیکربندی دیتابیس. لطفاً Secrets را بررسی کنید.")
+def save_interaction(u_id, p_num, u_prompt, ai_res):
+    # استفاده از متد connect برای کنترل بیشتر روی تراکنش
+    with engine.connect() as conn:
+        try:
+            conn.execute(text("""
+                INSERT INTO audit_logs (user_id, prompt_number, user_prompt, ai_response, timestamp)
+                VALUES (:u_id, :p_num, :u_prompt, :ai_res, :ts)
+            """), {
+                "u_id": u_id,
+                "p_num": p_num,
+                "u_prompt": u_prompt,
+                "ai_res": ai_res,
+                "ts": datetime.now()
+            })
+            conn.commit() # تأیید نهایی تراکنش
+        except Exception as e:
+            st.error(f"خطای دیتابیس: {e}")
+
+# ... (بقیه کدهای مربوط به Groq و نمایش چت)
+
+if prompt := st.chat_input("سوال فنی SQL Server خود را بپرسید..."):
+    # نمایش پیام کاربر و دریافت پاسخ از مدل llama-3.3-70b-versatile
+    # ... (کدهای قبلی) ...
+
+    # بعد از دریافت کامل پاسخ (full_response):
+    save_interaction(
+        u_id="SQL_Consultant_User", 
+        p_num=len(st.session_state.messages), # شماره ردیف بر اساس تعداد پیام‌ها
+        u_prompt=prompt, 
+        ai_res=full_response
+    )
 
 # ۲. تابع ذخیره‌سازی برای تحلیل‌های آتی (Forensic & Audit)
 def save_interaction(u_id, p_num, u_prompt, ai_res):
