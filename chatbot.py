@@ -50,8 +50,7 @@ st.markdown("""
             <li>T-SQL Query Optimization & Debugging</li>
             <li>Database Schema Design & Data Modeling</li>
             <li>Performance Tuning & Indexing Strategies</li>
-           
-        </ul>
+                   </ul>
     </div>
     """, unsafe_allow_html=True)
 
