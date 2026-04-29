@@ -44,13 +44,13 @@ with st.container():
 st.markdown("""
     <div class="bot-info">
         <b>Project Overview:</b><br>
-        This AI agent is powered by <b>Llama 3.3</b> and integrated with a <b>Supabase (PostgreSQL)</b> backend 
+        This AI agent is powered by LLM and Cloud database (PostgreSQL)</b> backend 
         to log auditing trails. It is designed to assist with:<br>
         <ul>
             <li>T-SQL Query Optimization & Debugging</li>
             <li>Database Schema Design & Data Modeling</li>
             <li>Performance Tuning & Indexing Strategies</li>
-            <li>Forensic Pattern Detection in Financial Transactions</li>
+           
         </ul>
     </div>
     """, unsafe_allow_html=True)
