@@ -93,7 +93,20 @@ for message in st.session_state.messages:
         with st.chat_message(message["role"]):
             st.markdown(message["content"])
 
+
+# Create a layout for the input and the exit button
+col_input, col_exit = st.columns([6, 1])
+
+with col_exit:
+    # This button resets the entire session and returns to the home view
+    if st.button("🚪 Exit & Home", use_container_width=True, help="End session and return to home page"):
+        # Clear chat history and any other session-specific data
+        st.session_state.messages = [{"role": "system", "content": "You are a professional SQL Server Expert."}]
+        # If you have other state variables like login status, clear them here
+        st.rerun()
+        
 # ۴. بخش اصلی گفتگو و ذخیره‌سازی (اصلاح شده برای رفع NameError)
+with col_input:
 if prompt := st.chat_input("َAsk your question..."):
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
@@ -130,10 +143,6 @@ if prompt := st.chat_input("َAsk your question..."):
 
         except Exception as e:
             st.error(f"خطا در مدل: {str(e)}")
-
-# Create a dedicated layout for the Control Panel
-st.divider()
-st.subheader("Session Control Panel")
 
 
 # تست سریع اتصال در سایدبار
