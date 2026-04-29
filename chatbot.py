@@ -24,7 +24,6 @@ def init_db():
     return conn
 
 # ۲. اتصال امن به Groq
-# حتماً در پنل Streamlit Cloud، کلید را در بخش Secrets با نام GROQ_API_KEY وارد کنید
 try:
     client = Groq(api_key=st.secrets["GROQ_API_KEY"])
 except Exception as e:
