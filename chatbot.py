@@ -5,8 +5,44 @@ from datetime import datetime
 import pandas as pd
 
 # تنظیمات اصلی صفحه
-st.set_page_config(page_title="SQL Server Expert", layout="centered")
-st.title("🛡️ مشاور تخصصی SQL Server")
+# تنظیمات اصلی صفحه با تم تیره/روشن بهبود یافته
+st.set_page_config(page_title="SQL Server Expert Consultant", layout="wide", initial_sidebar_state="expanded")
+
+# اضافه کردن CSS سفارشی برای ظاهر مرتب‌تر
+st.markdown("""
+    <style>
+    .main {
+        background-color: #f5f7f9;
+    }
+    .stChatMessage {
+        border-radius: 15px;
+        padding: 15px;
+        margin-bottom: 10px;
+    }
+    .stButton>button {
+        width: 100%;
+        border-radius: 20px;
+        height: 3em;
+        background-color: #007bff;
+        color: white;
+    }
+    .sidebar .sidebar-content {
+        background-image: linear-gradient(#2e7bcf,#2e7bcf);
+        color: white;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+# هدر اصلی
+col1, col2 = st.columns([1, 5])
+with col1:
+    st.title("🛡️")
+with col2:
+    st.title("مشاور ارشد SQL Server")
+    st.caption("سیستم هوشمند تحلیل و بهینه‌سازی پایگاه داده")
+
+st.divider()
+
 
 # ۱. اتصال به دیتابیس Supabase
 try:
