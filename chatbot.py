@@ -7,6 +7,7 @@
 import streamlit as st
 from groq import Groq
 import sqlite3
+from sqlalchemy import create_engine, text
 from datetime import datetime
 
 # ۱. تنظیمات اولیه دیتابیس
