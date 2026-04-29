@@ -95,7 +95,7 @@ for message in st.session_state.messages:
             st.markdown(message["content"])
 
 # ۴. بخش اصلی گفتگو و ذخیره‌سازی (اصلاح شده برای رفع NameError)
-if prompt := st.chat_input("سوال فنی خود را بپرسید..."):
+if prompt := st.chat_input("َAsk your question..."):
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
         st.markdown(prompt)
