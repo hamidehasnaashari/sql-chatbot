@@ -131,6 +131,11 @@ if prompt := st.chat_input("َAsk your question..."):
         except Exception as e:
             st.error(f"خطا در مدل: {str(e)}")
 
+# Create a dedicated layout for the Control Panel
+st.divider()
+st.subheader("Session Control Panel")
+
+
 # تست سریع اتصال در سایدبار
 #if st.sidebar.button("تست نهایی اتصال"):
  #   import urllib.parse
