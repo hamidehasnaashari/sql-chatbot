@@ -85,16 +85,16 @@ if prompt := st.chat_input("سوال فنی خود را بپرسید..."):
             st.error(f"خطا در مدل: {str(e)}")
 
 # تست سریع اتصال در سایدبار
-if st.sidebar.button("تست نهایی اتصال"):
-    import urllib.parse
-    try:
+#if st.sidebar.button("تست نهایی اتصال"):
+ #   import urllib.parse
+  #  try:
         # نمایش اطلاعات پایه برای دیباگ (بدون نمایش پسورد)
-        db_url = st.secrets["DB_URL"]
-        st.sidebar.info(f"Connecting to: {db_url.split('@')[-1]}")
+   #     db_url = st.secrets["DB_URL"]
+    #    st.sidebar.info(f"Connecting to: {db_url.split('@')[-1]}")
         
-        with engine.connect() as conn:
-            conn.execute(text("SELECT 1"))
-            st.sidebar.success("تبریک! اتصال برقرار شد و آماده ذخیره‌سازی است. ✅")
-    except Exception as e:
-        st.sidebar.error("خطای سیستمی:")
-        st.sidebar.code(str(e)) # نمایش کد خطا برای بررسی دقیق‌تر
+     #   with engine.connect() as conn:
+      #      conn.execute(text("SELECT 1"))
+       #     st.sidebar.success("تبریک! اتصال برقرار شد و آماده ذخیره‌سازی است. ✅")
+    #except Exception as e:
+     #   st.sidebar.error("خطای سیستمی:")
+      #  st.sidebar.code(str(e)) # نمایش کد خطا برای بررسی دقیق‌تر
